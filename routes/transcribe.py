@@ -20,4 +20,4 @@ def transcribe_and_analyze():
             "analysis": analysis
         })
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error ": str(e)}), 500
