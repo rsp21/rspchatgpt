@@ -1,40 +1,289 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Flask API Home</title>
-    <style>
-        body {
-            font-family: "Segoe UI", sans-serif;
-            background-color: #f4f6f8;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .card {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        h1 {
-            margin: 0;
-            font-size: 2rem;
-        }
-        p {
-            color: #666;
-            margin-top: 0.5rem;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Flask API Home</title>
+  <style>
+    :root {
+      --bg-color: #f4f6f8;
+      --text-color: #333;
+      --card-bg: white;
+      --border-color: #ddd;
+      --copy-btn-bg: #e0e0e0;
+      --copy-btn-hover: #ccc;
+      --logout-bg: #e74c3c;
+      --logout-hover: #c0392b;
+    }
+
+    body.dark {
+      --bg-color: #1e1e1e;
+      --text-color: #f0f0f0;
+      --card-bg: #2a2a2a;
+      --border-color: #444;
+      --copy-btn-bg: #444;
+      --copy-btn-hover: #666;
+      --logout-bg: #c0392b;
+      --logout-hover: #992d22;
+    }
+
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      padding: 2rem;
+      margin: 0;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .card {
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      background: var(--card-bg);
+      z-index: 10;
+      padding-bottom: 1rem;
+    }
+
+    .logout-btn {
+      background-color: var(--logout-bg);
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .logout-btn:hover {
+      background-color: var(--logout-hover);
+    }
+
+    .toggle-theme-btn {
+      background-color: transparent;
+      border: 1px solid var(--border-color);
+      padding: 8px 14px;
+      border-radius: 5px;
+      color: var(--text-color);
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: background-color 0.2s;
+    }
+
+    .toggle-theme-btn:hover {
+      background-color: var(--copy-btn-hover);
+    }
+
+    .toggle-theme-btn .icon {
+      display: inline-block;
+      transition: transform 0.4s ease;
+    }
+
+    body.dark .toggle-theme-btn .icon {
+      transform: rotate(180deg);
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-top: 1rem;
+    }
+
+    .buttons {
+      margin-bottom: 1.5rem;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-right: 1rem;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .loader-container {
+      display: none;
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .ball {
+      width: 50px;
+      height: 50px;
+      background-color: #FF6347;
+      border-radius: 50%;
+      display: inline-block;
+      animation: bounce 1.5s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-30px); }
+    }
+
+    .loader-text {
+      font-size: 1.2rem;
+      color: var(--text-color);
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .result-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+      position: relative;
+    }
+
+    .result-box h3 {
+      margin-top: 0;
+    }
+
+    .result-box pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-y: auto;
+      max-height: 300px;
+      font-size: 0.95rem;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background-color: var(--copy-btn-bg);
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    .copy-btn:hover {
+      background-color: var(--copy-btn-hover);
+    }
+
+    textarea {
+      width: 100%;
+      padding: 0.7rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      border: 1px solid var(--border-color);
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      font-size: 1rem;
+      resize: vertical;
+      min-height: 60px;
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
     <div class="card">
-        <h1>🚀 Welcome to Your Flask API</h1>
-        <p>This is the homepage. Your backend is live and ready.</p>
+      <div class="header-bar">
+        <button onclick="toggleTheme()" class="toggle-theme-btn">
+          <span class="icon">🌙</span> Toggle Mode
+        </button>
+        <form action="{{ url_for('auth.logout') }}" method="get">
+          <button type="submit" class="logout-btn">🔓 Logout</button>
+        </form>
+      </div>
+
+      <h1>🚀 Welcome to RSP Call Analysis</h1>
+      <p>This is the homepage. Your backend is live and ready.</p>
+
+      <textarea id="customPrompt" placeholder="Optional: Add a custom prompt to guide analysis..."></textarea>
+
+      <div class="buttons">
+        <button id="callEndpointBtn">Transcribe Last Call</button>
+        <button>Get All Calls for Today</button>
+      </div>
+
+      <div id="loader-container" class="loader-container">
+        <div class="ball"></div>
+        <p class="loader-text">Fetching data... Hang tight!</p>
+      </div>
+
+      <div id="results" style="display: none;">
+        <div class="result-box" id="transcription-box">
+          <h3>📝 Transcription</h3>
+          <button class="copy-btn" onclick="copyToClipboard('transcription-content')">Copy</button>
+          <pre id="transcription-content"></pre>
+        </div>
+
+        <div class="result-box" id="analysis-box">
+          <h3>🧠 Analysis</h3>
+          <button class="copy-btn" onclick="copyToClipboard('analysis-content')">Copy</button>
+          <pre id="analysis-content"></pre>
+        </div>
+      </div>
     </div>
+  </div>
+
+  <script>
+    document.getElementById("callEndpointBtn").addEventListener("click", function () {
+      document.getElementById("loader-container").style.display = "block";
+      document.getElementById("results").style.display = "none";
+
+      const prompt = document.getElementById("customPrompt").value;
+
+      fetch(`/transcribe?prompt=${encodeURIComponent(prompt)}`)
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById("loader-container").style.display = "none";
+
+          if (data.error) {
+            alert("Error: " + data.error);
+            return;
+          }
+
+          document.getElementById("results").style.display = "block";
+          document.getElementById("transcription-content").textContent = data.transcription;
+          document.getElementById("analysis-content").textContent = data.analysis;
+        })
+        .catch(error => {
+          console.error("Error calling the endpoint:", error);
+          document.getElementById("loader-container").style.display = "none";
+        });
+    });
+
+    function copyToClipboard(elementId) {
+      const text = document.getElementById(elementId).innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Copied to clipboard!");
+      }).catch(err => {
+        alert("Failed to copy: " + err);
+      });
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle("dark");
+    }
+  </script>
 </body>
 </html>
