@@ -1,2 +1,8 @@
 mitch,password123,17eWpXndTuy2eVGr8p0Wag
 Travis,password123,d1LyJD5fRPGnUXjCSJromA
+Sam,password123,FfCzx_nMTPemtAj3CN0OAg
+Kaden,password123,yemGcypFTZGSczXNRxOFiw
+Justin,password123,FDeebjLrRCi793OjRObDKg
+Hannah,password123,619z7VC0TZaP1DhYNAsnWg
+Grant,password123,d09CLcceQX2ELsEMxqPwiA
+Madi,password123,EQIH6J5dTRCDJJ1M0o8_zg
