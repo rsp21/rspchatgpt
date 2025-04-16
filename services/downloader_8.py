@@ -83,7 +83,13 @@ def get_call_recordings_and_download(access_token, region, target_user_id):
         raise Exception(f"Failed to fetch recordings: {response.status_code} - {response.text}")
 
 # --- DOWNLOAD ZIP ---
-def download_bulk_zip(access_token, region, zip_id, output_path="downloaded_recordings.zip"):
+def download_bulk_zip(access_token, region, zip_id, target_user_id):
+    output_dir = f"{target_user_id}"
+    output_path = os.path.join(output_dir, "downloaded_recordings.zip")
+    
+    # Ensure the directory exists
+    os.makedirs(output_dir, exist_ok=True)
+    
     url = f"https://api.8x8.com/storage/{region}/v3/bulk/download/{zip_id}.zip"
     headers = {
         "Authorization": f"Bearer {access_token}",
@@ -108,7 +114,7 @@ def download_main(target_user_id):
         status_info = check_bulk_download_status(token, REGION, download_id)
       
         if status_info['status'] == 'DONE':
-            path = download_bulk_zip(token, REGION, download_id)
+            path = download_bulk_zip(token, REGION, download_id, target_user_id)
             return path
         else:
             print(f"⌛ Still processing: {status_info['status']}")
