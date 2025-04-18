@@ -15,8 +15,7 @@ def transcribe_audio(file_stream, filename="audio.wav"):
         transcription = client.audio.transcriptions.create(
             model="whisper-1",
             file=(filename, file_stream, mime_type),
-            temperature=0.5,
-            timeout=120
+            temperature=0.5
         )
 
         # Safeguard: make sure transcription has 'text'
@@ -51,8 +50,7 @@ def analyze_text(text, default_prompt=None):
         response = client.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.5,
-            timeout=60
+            temperature=0.5
         )
 
         return response.choices[0].message.content
