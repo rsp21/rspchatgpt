@@ -17,7 +17,10 @@ def transcribe_and_analyze():
         print(f"🔐 Transcribing for user actual ID: {actual_user_id}")
 
         zip_path = download_main(actual_user_id)
-        print(f"📦 Downloaded ZIP: {zip_path}")
+        print(f"📦 Downloaded ZIP path: {zip_path}")
+
+        if not zip_path:
+            return jsonify({"error": "No recording ZIP was downloaded. Please ensure there are recent call recordings for this user."}), 404
 
         with tempfile.TemporaryDirectory() as temp_dir:
             with zipfile.ZipFile(zip_path, 'r') as zip_ref:
@@ -40,7 +43,6 @@ def transcribe_and_analyze():
 
         transcript = transcribe_audio(audio_stream, filename=os.path.basename(audio_path))
 
-        # Get prompt from request args
         custom_prompt = request.args.get("prompt", "").strip()
         prompt_to_use = custom_prompt if custom_prompt else ""
 
@@ -52,4 +54,5 @@ def transcribe_and_analyze():
         })
 
     except Exception as e:
+        print(f"❌ Exception in transcribe_and_analyze: {str(e)}")
         return jsonify({"error": str(e)}), 500

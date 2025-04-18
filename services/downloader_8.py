@@ -120,25 +120,34 @@ def download_bulk_zip(access_token, region, zip_id, target_user_id):
 # --- MAIN WORKFLOW ---
 def download_main(target_user_id):
     try:
+        logging.info(f"🔐 Starting download for user: {target_user_id}")
         token = get_access_token(CLIENT_ID, CLIENT_SECRET)
+        logging.info(f"✅ Access token acquired")
+
         download_info = get_call_recordings_and_download(token, REGION, target_user_id)
+        logging.info(f"📥 Download info received: {download_info}")
 
         if not download_info:
-            logging.warning("No matching recordings found for this user.")
+            logging.warning("⚠️ No matching recordings found for this user.")
             return None
 
-        download_id = download_info['zipName']
-        logging.info(f"🕒 Waiting for download job to be ready...")
+        download_id = download_info.get('zipName')
+        if not download_id:
+            logging.error("❌ zipName not found in download_info")
+            return None
+
+        logging.info(f"🕒 Waiting for bulk download job with ID: {download_id}")
         time.sleep(5)
 
         status_info = check_bulk_download_status(token, REGION, download_id)
+        logging.info(f"📦 Download job status: {status_info}")
 
-        if status_info['status'] == 'DONE':
+        if status_info.get('status') == 'DONE':
             return download_bulk_zip(token, REGION, download_id, target_user_id)
         else:
-            logging.info(f"⌛ Still processing: {status_info['status']}")
+            logging.warning(f"⌛ Download job not ready. Status: {status_info.get('status')}")
             return None
 
     except Exception as e:
-        logging.error(f"❌ Error during download: {e}")
+        logging.error(f"❌ Error during download process: {e}", exc_info=True)
         return None
