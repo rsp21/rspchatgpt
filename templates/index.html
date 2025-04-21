@@ -146,6 +146,20 @@
       background-color: #45a049;
     }
 
+    .refresh-btn {
+      background-color: var(--copy-btn-bg);
+      color: var(--text-color);
+      padding: 6px 10px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .refresh-btn:hover {
+      background-color: var(--copy-btn-hover);
+    }
+
     .result-box {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
@@ -257,7 +271,10 @@
 
         <!-- Right Panel -->
         <div class="right-panel">
-          <h3>📞 Today's Calls</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3>📞 Today's Calls</h3>
+            <button id="refreshCallsBtn" class="refresh-btn" title="Refresh Today's Calls">🔄</button>
+          </div>
           <div id="calls-section" style="display: none;">
             <div id="calls-list"></div>
           </div>
@@ -289,7 +306,10 @@
         });
     });
 
-    document.getElementById("getCallsBtn").addEventListener("click", function () {
+    document.getElementById("getCallsBtn").addEventListener("click", fetchCalls);
+    document.getElementById("refreshCallsBtn").addEventListener("click", fetchCalls);
+
+    function fetchCalls() {
       document.getElementById("loader-container").style.display = "block";
       document.getElementById("calls-section").style.display = "none";
 
@@ -323,7 +343,7 @@
           console.error("Error fetching calls:", error);
           document.getElementById("loader-container").style.display = "none";
         });
-    });
+    }
 
     function transcribeSpecificCall(callId) {
       const prompt = document.getElementById("customPrompt").value;

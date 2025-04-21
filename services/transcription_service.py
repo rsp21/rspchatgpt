@@ -5,7 +5,6 @@ from services.openai_client import client
 # Configure logging (you can adjust level and format as needed)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 import os
 
 def transcribe_audio(file_stream, user_id,filename="audio.wav"):
