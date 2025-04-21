@@ -6,44 +6,57 @@ from services.openai_client import client
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def transcribe_audio(file_stream, filename="audio.wav"):
+import os
+
+def transcribe_audio(file_stream, user_id,filename="audio.wav"):
     try:
-        # Determine MIME type based on extension
+        # Determine MIME type
         mime_type = "audio/wav" if filename.endswith(".wav") else "audio/mpeg"
-        
-        # Send to OpenAI Whisper API
+
+        # Transcribe with Whisper
         transcription = client.audio.transcriptions.create(
             model="whisper-1",
             file=(filename, file_stream, mime_type),
             temperature=0.5
         )
 
-        # Safeguard: make sure transcription has 'text'
         if hasattr(transcription, "text") and transcription.text:
-            return str(transcription.text)
+            text = str(transcription.text)
+
+            # Save transcription with consistent name
+            output_dir =f"transcriptions/{user_id}"
+            os.makedirs(output_dir, exist_ok=True)
+
+            output_path = os.path.join(output_dir, "latest_transcription.txt")
+
+            # Overwrite existing file
+            with open(output_path, "w", encoding="utf-8") as f:
+                f.write(text)
+
+            return text
+
         else:
             raise ValueError("Transcription returned no text.")
-    
+
     except Exception as e:
         logger.error(f"[Transcription Error] {str(e)}")
         logger.debug(traceback.format_exc())
         raise RuntimeError("Failed to transcribe audio. Check logs for details.") from e
 
+
 def analyze_text(text, default_prompt=None):
     try:
         if not default_prompt:
             default_prompt = '''
-            1. What is the overall tone of the speaker? (e.g., friendly, professional, emotional, urgent)
-            2. Provide a concise summary of what is being said.
-            3. Include who the speaker is, where they are calling from, what they wanted.
-            4. Include who the sales representative was and what was their tone and what they responded.
+            1. Analize the call give the the tone of the call and the summary.
+            2. I’d like you to create a strong follow-up call script I can use to deepen the relationship, make the contact feel more personally connected to me, and position RSP Supply as a trusted, go-to supplier—especially for hard-to-find or critical components. The goal is to uncover new opportunities by asking smart, open-ended questions that help me better understand how I can support their work and solve pain points. The script should feel natural, personable, and confident—showing that I’m resourceful, competent, and here to make their job easier.
             '''
 
         prompt = f"""
         Here is a transcription of an audio file:
 
         \"\"\"{text}\"\"\"
-
+        And this is what I want you to do:
         {default_prompt}
         """
 

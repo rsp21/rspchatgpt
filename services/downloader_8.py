@@ -94,6 +94,32 @@ def get_call_recordings_and_download(access_token, region, target_user_id):
             return start_bulk_download(access_token, region, [element["id"]])
     return None
 
+def get_calls( target_user_id, amount):
+    token = get_access_token(CLIENT_ID, CLIENT_SECRET)
+    url = f'https://api.8x8.com/storage/{REGION}/v3/objects'
+    params = {
+        'filter': 'type==callrecording;duration=gt=100',
+        'sortField': 'createdTime',
+        'sortDirection': 'DESC',
+        'pageKey': 0,
+        'limit': 100
+    }
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {token}'
+    }
+    response = session.get(url, headers=headers, params=params)
+    response.raise_for_status()
+
+    content = response.json().get("content", [])
+    calls =[]
+    _amount = 0
+    for element in content:
+        if element['userId'] == target_user_id and _amount<=amount:
+            calls.append(element)
+            _amount+=1
+    return calls
+
 # --- DOWNLOAD ZIP ---
 def download_bulk_zip(access_token, region, zip_id, target_user_id):
     output_dir = f"{target_user_id}"
@@ -126,6 +152,43 @@ def download_main(target_user_id):
 
         download_info = get_call_recordings_and_download(token, REGION, target_user_id)
         logging.info(f"📥 Download info received: {download_info}")
+
+        if not download_info:
+            logging.warning("⚠️ No matching recordings found for this user.")
+            return None
+
+        download_id = download_info.get('zipName')
+        if not download_id:
+            logging.error("❌ zipName not found in download_info")
+            return None
+
+        logging.info(f"🕒 Waiting for bulk download job with ID: {download_id}")
+        time.sleep(5)
+
+        status_info = check_bulk_download_status(token, REGION, download_id)
+        logging.info(f"📦 Download job status: {status_info}")
+
+        if status_info.get('status') == 'DONE':
+            return download_bulk_zip(token, REGION, download_id, target_user_id)
+        else:
+            logging.warning(f"⌛ Download job not ready. Status: {status_info.get('status')}")
+            return None
+
+    except Exception as e:
+        logging.error(f"❌ Error during download process: {e}", exc_info=True)
+        return None
+
+# Need to refactore to comebine this with the above function in the future
+def download_single(target_user_id, call_id):
+    try:
+        logging.info(f"🔐 Starting download for user: {target_user_id} and a specific call {call_id}")
+        token = get_access_token(CLIENT_ID, CLIENT_SECRET)
+        logging.info(f"✅ Access token acquired")
+
+        download_info = start_bulk_download(token, REGION, [call_id])
+
+        # download_info = get_call_recordings_and_download(token, REGION, target_user_id)
+        # logging.info(f"📥 Download info received: {download_info}")
 
         if not download_info:
             logging.warning("⚠️ No matching recordings found for this user.")

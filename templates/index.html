@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Flask API Home</title>
+  <meta charset="UTF-8" />
+  <title>RSP SUPPLY | Call Analysis Dashboard</title>
   <style>
     :root {
       --bg-color: #f4f6f8;
@@ -36,7 +36,7 @@
     }
 
     .container {
-      max-width: 800px;
+      max-width: 1300px;
       margin: auto;
     }
 
@@ -45,19 +45,13 @@
       padding: 2rem;
       border-radius: 12px;
       box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      margin-bottom: 2rem;
-      position: relative;
     }
 
     .header-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      position: sticky;
-      top: 0;
-      background: var(--card-bg);
-      z-index: 10;
-      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
     }
 
     .logout-btn {
@@ -85,16 +79,10 @@
       display: flex;
       align-items: center;
       gap: 0.4rem;
-      transition: background-color 0.2s;
     }
 
     .toggle-theme-btn:hover {
       background-color: var(--copy-btn-hover);
-    }
-
-    .toggle-theme-btn .icon {
-      display: inline-block;
-      transition: transform 0.4s ease;
     }
 
     body.dark .toggle-theme-btn .icon {
@@ -103,52 +91,59 @@
 
     h1 {
       font-size: 2rem;
-      margin-top: 1rem;
+    }
+
+    .main-layout {
+      display: flex;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .left-panel {
+      flex: 3;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .right-panel {
+      flex: 1.2;
+      background-color: var(--card-bg);
+      padding: 1rem;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      height: fit-content;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 0.7rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      font-size: 1rem;
+      resize: vertical;
+      min-height: 60px;
     }
 
     .buttons {
-      margin-bottom: 1.5rem;
+      display: flex;
+      gap: 1rem;
     }
 
     button {
-      padding: 10px 20px;
+      padding: 10px 16px;
       background-color: #4CAF50;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       cursor: pointer;
-      margin-right: 1rem;
+      font-size: 0.95rem;
     }
 
     button:hover {
       background-color: #45a049;
-    }
-
-    .loader-container {
-      display: none;
-      text-align: center;
-      margin-top: 1rem;
-    }
-
-    .ball {
-      width: 50px;
-      height: 50px;
-      background-color: #FF6347;
-      border-radius: 50%;
-      display: inline-block;
-      animation: bounce 1.5s infinite;
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-30px); }
-    }
-
-    .loader-text {
-      font-size: 1.2rem;
-      color: var(--text-color);
-      font-weight: bold;
-      margin-top: 10px;
     }
 
     .result-box {
@@ -156,7 +151,6 @@
       border: 1px solid var(--border-color);
       border-radius: 8px;
       padding: 1rem;
-      margin-top: 1rem;
       position: relative;
     }
 
@@ -188,17 +182,32 @@
       background-color: var(--copy-btn-hover);
     }
 
-    textarea {
-      width: 100%;
-      padding: 0.7rem;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-      border: 1px solid var(--border-color);
-      background-color: var(--card-bg);
+    .loader-container {
+      display: none;
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 6px solid var(--border-color);
+      border-top: 6px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loader-text {
+      font-size: 1.1rem;
+      font-weight: 500;
       color: var(--text-color);
-      font-size: 1rem;
-      resize: vertical;
-      min-height: 60px;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -214,32 +223,44 @@
         </form>
       </div>
 
-      <h1>🚀 Welcome to RSP Call Analysis</h1>
-      <p>This is the homepage. Your backend is live and ready.</p>
+      <h1>🚀 RSP Call Analysis Dashboard</h1>
 
-      <textarea id="customPrompt" placeholder="Optional: Add a custom prompt to guide analysis..."></textarea>
+      <div class="main-layout">
+        <!-- Left Panel -->
+        <div class="left-panel">
+          <textarea id="customPrompt" placeholder="Optional: Add a custom prompt for analysis..."></textarea>
 
-      <div class="buttons">
-        <button id="callEndpointBtn">Transcribe Last Call</button>
-        <button>Get All Calls for Today</button>
-      </div>
+          <div class="buttons">
+            <button id="callEndpointBtn">Transcribe Last Call</button>
+            <button id="getCallsBtn">Get Today's Calls</button>
+          </div>
 
-      <div id="loader-container" class="loader-container">
-        <div class="ball"></div>
-        <p class="loader-text">Fetching data... Hang tight!</p>
-      </div>
+          <div id="loader-container" class="loader-container">
+            <div class="spinner"></div>
+            <p class="loader-text">Processing... Please wait.</p>
+          </div>
 
-      <div id="results" style="display: none;">
-        <div class="result-box" id="transcription-box">
-          <h3>📝 Transcription</h3>
-          <button class="copy-btn" onclick="copyToClipboard('transcription-content')">Copy</button>
-          <pre id="transcription-content"></pre>
+          <div id="results" style="display: none;">
+            <div class="result-box" id="transcription-box">
+              <h3>📝 Transcription</h3>
+              <button class="copy-btn" onclick="copyToClipboard('transcription-content')">Copy</button>
+              <pre id="transcription-content"></pre>
+            </div>
+
+            <div class="result-box" id="analysis-box">
+              <h3>🧠 Analysis</h3>
+              <button class="copy-btn" onclick="copyToClipboard('analysis-content')">Copy</button>
+              <pre id="analysis-content"></pre>
+            </div>
+          </div>
         </div>
 
-        <div class="result-box" id="analysis-box">
-          <h3>🧠 Analysis</h3>
-          <button class="copy-btn" onclick="copyToClipboard('analysis-content')">Copy</button>
-          <pre id="analysis-content"></pre>
+        <!-- Right Panel -->
+        <div class="right-panel">
+          <h3>📞 Today's Calls</h3>
+          <div id="calls-section" style="display: none;">
+            <div id="calls-list"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -256,21 +277,74 @@
         .then(response => response.json())
         .then(data => {
           document.getElementById("loader-container").style.display = "none";
-
-          if (data.error) {
-            alert("Error: " + data.error);
-            return;
-          }
+          if (data.error) return alert("Error: " + data.error);
 
           document.getElementById("results").style.display = "block";
           document.getElementById("transcription-content").textContent = data.transcription;
           document.getElementById("analysis-content").textContent = data.analysis;
         })
         .catch(error => {
-          console.error("Error calling the endpoint:", error);
+          console.error("Error:", error);
           document.getElementById("loader-container").style.display = "none";
         });
     });
+
+    document.getElementById("getCallsBtn").addEventListener("click", function () {
+      document.getElementById("loader-container").style.display = "block";
+      document.getElementById("calls-section").style.display = "none";
+
+      fetch("/calls")
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById("loader-container").style.display = "none";
+          if (data.error) return alert("Error: " + data.error);
+
+          const callsList = document.getElementById("calls-list");
+          callsList.innerHTML = "";
+
+          data.calls.forEach(call => {
+            const callHTML = `
+              <div style="margin-bottom: 1rem;">
+                <strong>${call.userName || "Unknown User"}</strong><br>
+                Direction: <em>${call.direction || "N/A"}</em><br>
+                Left: ${call.left || "N/A"}<br>
+                Right: ${call.right || "N/A"}<br>
+                Time: ${call.time || "N/A"}<br>
+                <button style="margin-top: 0.5rem;" onclick="transcribeSpecificCall('${call.id}')">Transcribe</button>
+              </div>
+              <hr>
+            `;
+            callsList.innerHTML += callHTML;
+          });
+
+          document.getElementById("calls-section").style.display = "block";
+        })
+        .catch(error => {
+          console.error("Error fetching calls:", error);
+          document.getElementById("loader-container").style.display = "none";
+        });
+    });
+
+    function transcribeSpecificCall(callId) {
+      const prompt = document.getElementById("customPrompt").value;
+      document.getElementById("loader-container").style.display = "block";
+      document.getElementById("results").style.display = "none";
+
+      fetch(`/transscribespecificcall?id=${callId}&prompt=${encodeURIComponent(prompt)}`)
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById("loader-container").style.display = "none";
+          if (data.error) return alert("Error: " + data.error);
+
+          document.getElementById("results").style.display = "block";
+          document.getElementById("transcription-content").textContent = data.transcription;
+          document.getElementById("analysis-content").textContent = data.analysis;
+        })
+        .catch(error => {
+          console.error("Error fetching specific transcription:", error);
+          document.getElementById("loader-container").style.display = "none";
+        });
+    }
 
     function copyToClipboard(elementId) {
       const text = document.getElementById(elementId).innerText;
